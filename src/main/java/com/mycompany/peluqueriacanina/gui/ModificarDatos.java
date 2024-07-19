@@ -2,15 +2,21 @@
 package com.mycompany.peluqueriacanina.gui;
 
 import com.mycompany.peluqueriacanina.logica.Controladora;
+import com.mycompany.peluqueriacanina.logica.Mascota;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-public class CargarDatos extends javax.swing.JFrame {
+public class ModificarDatos extends javax.swing.JFrame {
+    
     Controladora control = null;
+    int num_cliente;
+    Mascota masco;
 
-    public CargarDatos() {
+    public ModificarDatos(int num_cliente) {
         control = new Controladora();
+        this.num_cliente = num_cliente;
         initComponents();
+        cargarDatos(num_cliente);
     }
 
     @SuppressWarnings("unchecked")
@@ -46,7 +52,7 @@ public class CargarDatos extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 48)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Cargar Datos");
+        jLabel1.setText("Modificar Datos");
 
         labelNombre.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         labelNombre.setText("Nombre:");
@@ -182,7 +188,7 @@ public class CargarDatos extends javax.swing.JFrame {
 
         btnGuardar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnGuardar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Augusto\\Downloads\\Save_37110.png")); // NOI18N
-        btnGuardar.setText("GUARDAR");
+        btnGuardar.setText("GUARDAR CAMBIOS");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
@@ -203,9 +209,9 @@ public class CargarDatos extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnGuardar)
-                .addGap(85, 85, 85)
+                .addGap(78, 78, 78)
                 .addComponent(btnLimpiar)
-                .addGap(104, 104, 104))
+                .addGap(52, 52, 52))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jSeparator1)
@@ -268,21 +274,26 @@ public class CargarDatos extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        
+        control = new Controladora();
+        //los datos de la mascota
+        int id=control.traerMascota(num_cliente).getNum_cliente();
         String nombreMasco = txtNombre.getText();
         String razaMasco = txtRaza.getText();
         String colorMasco = txtColor.getText();
-        String nombreDuenio=txtNombreDuenio.getText();
-        String telDuenio=txtTelDuenio.getText();
         String observac=txtArea_observ.getText();
         String alergico=(String)cmbAlergico.getSelectedItem();
         String atenEsp =(String)cmbAtencionEsp.getSelectedItem();
-        control.guardar(nombreMasco, razaMasco, colorMasco, nombreDuenio, telDuenio, observac, alergico, atenEsp);
-        JOptionPane oPane = new JOptionPane("Se guardó correctamente.");
-        oPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
-        JDialog dialogo=oPane.createDialog("Guardado Exitoso");
-        dialogo.setAlwaysOnTop(true);
-        dialogo.setVisible(true);
+        //los datos del dueño
+        String nombreDuenio=txtNombreDuenio.getText();
+        String telDuenio=txtTelDuenio.getText();
+        
+        control.editarDatosMascota(masco, nombreMasco, razaMasco, colorMasco, observac, alergico, atenEsp, nombreDuenio, telDuenio);
+        
+        mostrarMensaje("Edicion realizada con exito.","Info","Edicion de cliente.");
+        this.dispose();
+        VerDatos pantalla=new VerDatos();
+        pantalla.setVisible(true);
+        pantalla.setLocationRelativeTo(null);
         
     }//GEN-LAST:event_btnGuardarActionPerformed
 
@@ -313,4 +324,40 @@ public class CargarDatos extends javax.swing.JFrame {
     private javax.swing.JTextField txtRaza;
     private javax.swing.JTextField txtTelDuenio;
     // End of variables declaration//GEN-END:variables
+
+    private void cargarDatos(int num_cliente) {
+        this.masco = control.traerMascota(num_cliente);
+        txtNombre.setText(masco.getNombrePerro());
+        txtRaza.setText(masco.getRaza());
+        txtColor.setText(masco.getColor());
+        if(masco.getAlergico().equals("SI")){
+            cmbAlergico.setSelectedIndex(1);
+        }
+        else{
+            cmbAlergico.setSelectedIndex(2);
+        }
+        if(masco.getAtencionEspecial().equals("SI")){
+            cmbAtencionEsp.setSelectedIndex(1);
+        }
+        else{
+            cmbAtencionEsp.setSelectedIndex(2);
+        }
+        txtNombreDuenio.setText(masco.getDuenio_masc().getNombre());
+        txtTelDuenio.setText(masco.getDuenio_masc().getCelDuenio());
+        txtArea_observ.setText(masco.getObservaciones());
+        
+    }
+    public void mostrarMensaje(String mensaje, String tipo, String titulo){
+        JOptionPane optionPane = new JOptionPane(mensaje);
+        if(tipo.equals("Info")){
+            optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
+            
+        }
+        if(tipo.equals("Error")){
+            optionPane.setMessageType(JOptionPane.ERROR_MESSAGE);
+        }
+        JDialog dialogo=optionPane.createDialog(titulo);
+        dialogo.setAlwaysOnTop(true);
+        dialogo.setVisible(true);
+    }
 }
